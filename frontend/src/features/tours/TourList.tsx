@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../services/supabaseClient'
-import AddCityForm from './AddCityForm'
 import { useNavigate } from 'react-router-dom'
 
 interface Tour {
@@ -14,7 +13,6 @@ interface Tour {
 const AdminDashboard = () => {
   const [tours, setTours] = useState<Tour[]>([])
   const navigate = useNavigate()
-  const [selectedTourId, setSelectedTourId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -39,7 +37,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Your Tours</h1>
+      <h1 className="text-2xl font-bold mb-6">Upcoming Tours</h1>
 
       {tours.length === 0 ? (
         <p className="text-gray-600">No tours yet.</p>
