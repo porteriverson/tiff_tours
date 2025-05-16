@@ -10,11 +10,7 @@ interface TourFormValues {
   max_participants: number
 }
 
-interface CreateTourModalProps {
-  onTourCreated: (tourId: string) => void
-}
-
-const CreateTourModal: React.FC<CreateTourModalProps> = ({ onTourCreated }) => {
+const CreateTourModal: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [formValues, setFormValues] = useState<TourFormValues>({
     title: '',
@@ -78,7 +74,6 @@ const CreateTourModal: React.FC<CreateTourModalProps> = ({ onTourCreated }) => {
     if (error) {
       setError(error.message)
     } else if (data?.id) {
-      onTourCreated(data.id)
       setIsOpen(false)
       setFormValues({
         title: '',
@@ -147,7 +142,6 @@ const CreateTourModal: React.FC<CreateTourModalProps> = ({ onTourCreated }) => {
                   className="w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:border-gray-600"
                   value={formValues.price}
                   onChange={handleChange}
-                  required
                 />
               </div>
 
@@ -184,7 +178,6 @@ const CreateTourModal: React.FC<CreateTourModalProps> = ({ onTourCreated }) => {
                   className="w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:border-gray-600"
                   value={formValues.max_participants}
                   onChange={handleChange}
-                  required
                 />
               </div>
 

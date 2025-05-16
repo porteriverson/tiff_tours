@@ -1,39 +1,29 @@
-import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { UserRolesManager } from '../components/UserRolesManager'
 import CreateTourForm from '../features/tours/CreateTourForm'
-import { supabase } from '../services/supabaseClient'
 import TourList from '../features/tours/TourList'
 
 function AdminDashboard() {
-  const navigate = useNavigate()
-  const [createdTourId, setCreatedTourId] = useState<string | null>(null)
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/')
-  }
-
-  const handleTourCreated = (tourId: string) => {
-    console.log('New tour created with ID:', tourId)
-    setCreatedTourId(tourId)
-  }
-
   return (
-    <div className="flex min-h-screen min-w-screen items-center justify-center bg-gray-100 dark:bg-gray-900 text-center px-4">
-      <div>
-        <h1 className="text-2xl font-bold mb-2 m-24">Admin Dashboard</h1>
+    <div className="min-h-screen min-w-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white px-4 py-18">
+      <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
 
-        <TourList />
+      <div className="flex flex-col md:flex-row gap-6 max-w-7xl mx-auto">
+        {/* Left Panel: Tour List */}
+        <div className="md:w-1/2 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Upcoming Tours</h2>
+          <TourList />
+          <CreateTourForm />
+        </div>
 
-        <CreateTourForm onTourCreated={handleTourCreated} />
-
-        <div>
-          <button
-            onClick={handleLogout}
-            className="m-5 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
-          >
-            Logout
-          </button>
+        {/* Right Panel: Form and future features */}
+        <div className="md:w-1/2 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Traveler Information</h2>
+          <p>Future information about travelers to go here. </p>
+        </div>
+      </div>
+      <div className="flex flex-col md:flex-row gap-6 mx-auto justify-center p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <UserRolesManager />
         </div>
       </div>
     </div>

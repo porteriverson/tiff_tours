@@ -1,8 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../services/supabaseClient'
-import { parseISO, eachDayOfInterval, format } from 'date-fns'
+import { parseISO, eachDayOfInterval, format, parse, isValid } from 'date-fns'
 import { AddActivityModal } from '../features/tours/AddActivityModal'
+import { ItinerarySection } from '../features/tours/ItinerarySection'
+import { PublishToggle } from '../features/tours/PublishToggle'
+import { EditDeleteTourButton } from '../features/tours/EditDeleteTourButton'
 
 const sections = ['Itinerary', 'Accommodations', 'Transportation', 'Travelers']
 
@@ -18,13 +21,14 @@ const ManageTourPage = () => {
   const [selectedDayNumber, setSelectedDayNumber] = useState<number | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [activitiesByDay, setActivitiesByDay] = useState<Record<number, any[]>>({})
+  const [isPublished, setIsPublished] = useState<boolean | null>(null)
 
   const fetchTour = useCallback(async () => {
     if (!tourId) return
 
     const { data, error } = await supabase
       .from('tours')
-      .select('title, start_date, end_date')
+      .select('title, start_date, end_date, is_published')
       .eq('id', tourId)
       .single()
 
@@ -36,6 +40,7 @@ const ManageTourPage = () => {
 
     setTourTitle(data.title)
     setTourDates({ start_date: data.start_date, end_date: data.end_date })
+    setIsPublished(data.is_published)
 
     const days = eachDayOfInterval({
       start: parseISO(data.start_date),
@@ -71,10 +76,20 @@ const ManageTourPage = () => {
     setShowModal(true)
   }
 
+  const formatTime = (time: string) => {
+    try {
+      const parsed = parse(time, 'HH:mm:ss', new Date())
+      if (!isValid(parsed)) throw new Error('Invalid time format')
+      return format(parsed, 'h:mm a')
+    } catch {
+      return ''
+    }
+  }
+
   return (
     <div className="p-6 min-w-screen mx-auto m-18">
       <div className="mb-6">
-        <button onClick={() => navigate('/admin')} className="text-blue-500 hover:underline">
+        <button onClick={() => navigate('/admin')} className="bg-white hover:underline">
           ← Back to Dashboard
         </button>
         <h1 className="text-2xl font-bold mt-2">Manage Tour: {tourTitle}</h1>
@@ -103,44 +118,17 @@ const ManageTourPage = () => {
 
       <div className="bg-white dark:bg-gray-800 p-4 rounded shadow justify-between items-center">
         {activeTab === 'Itinerary' && (
-          <div className="space-y-4">
-            {daysArray.map((date, index) => (
-              <div key={date} className="border-b pb-2 flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold mb-1">
-                    Day {index + 1} - {date}
-                  </h3>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                    {activitiesByDay[index + 1]?.length ? (
-                      activitiesByDay[index + 1].map((activity, idx) => (
-                        <div key={idx} className="mb-1">
-                          <span className="font-semibold">{activity.location_name}</span> –{' '}
-                          {activity.description}
-                          {activity.city_name && activity.country && (
-                            <div className="text-xs italic text-gray-400">
-                              ({activity.city_name}, {activity.country})
-                            </div>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <p className="italic text-gray-400">No activities yet</p>
-                    )}
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleAddItineraryDay(date, index)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                >
-                  Add Item
-                </button>
-              </div>
-            ))}
-          </div>
+          <ItinerarySection
+            daysArray={daysArray}
+            activitiesByDay={activitiesByDay}
+            handleAddItineraryDay={handleAddItineraryDay}
+            formatTime={formatTime}
+            fetchTour={fetchTour}
+          />
         )}
         {activeTab === 'Accommodations' && <p>Accommodations manager coming soon...</p>}
         {activeTab === 'Transportation' && <p>Transportation manager coming soon...</p>}
-        {activeTab === 'Travelers' && <p>Traveler/booking tools coming soon...</p>}
+        {activeTab === 'Travelers' && <p>Traveler tools coming soon...</p>}
       </div>
 
       {showModal && selectedDate && selectedDayNumber && tourId && (
@@ -156,6 +144,16 @@ const ManageTourPage = () => {
           }}
         />
       )}
+      <div className="mt-8 m-5 text-center">
+        {tourId && isPublished !== null && (
+          <PublishToggle
+            tourId={tourId}
+            initialPublished={isPublished}
+            onToggle={(newStatus) => setIsPublished(newStatus)}
+          />
+        )}
+        <EditDeleteTourButton />
+      </div>
     </div>
   )
 }

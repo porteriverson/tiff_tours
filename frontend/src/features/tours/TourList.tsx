@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../services/supabaseClient'
 import { useNavigate } from 'react-router-dom'
+import { PublishToggle } from './PublishToggle'
 
 interface Tour {
   id: string
@@ -22,7 +23,7 @@ const AdminDashboard = () => {
       const { data, error } = await supabase
         .from('tours')
         .select('id, title, start_date, end_date, is_published')
-        .eq('created_by_user_id', user.id)
+        // .eq('created_by_user_id', user.id)
         .order('start_date', { ascending: true })
 
       if (error) {
@@ -33,12 +34,10 @@ const AdminDashboard = () => {
     }
 
     fetchTours()
-  }, [])
+  }, [tours])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Upcoming Tours</h1>
-
       {tours.length === 0 ? (
         <p className="text-gray-600">No tours yet.</p>
       ) : (
@@ -62,6 +61,7 @@ const AdminDashboard = () => {
                 >
                   Manage Tour
                 </button>
+                <PublishToggle tourId={tour.id} initialPublished={tour.is_published} />
               </div>
             </li>
           ))}

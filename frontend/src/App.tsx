@@ -20,7 +20,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin>
                 <AdminDashboard />
               </ProtectedRoute>
             }
@@ -30,7 +30,7 @@ function App() {
           <Route
             path="/admin/tours/:tourId"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin>
                 <ManageTourPage />
               </ProtectedRoute>
             }
