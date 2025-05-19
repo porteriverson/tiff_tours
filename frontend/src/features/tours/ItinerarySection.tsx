@@ -3,13 +3,14 @@ import { EditDeleteActivityButtons } from './EditDeleteActivityButtons'
 
 interface Activity {
   id: string
-  itinerary_day_id: string
   start_time: string
   end_time: string
+  date: string
   location_name: string
   description: string
   city: string
   country: string
+  day_number: number
 }
 
 interface ItinerarySectionProps {
@@ -33,17 +34,21 @@ export const ItinerarySection: React.FC<ItinerarySectionProps> = ({
         <div key={date} className="border-b pb-2 flex justify-between items-center">
           <div>
             <h3 className="flex font-semibold mb-1 underline">
-              Day {index + 1} - {date}
+              Day {index + 1} - {new Date(date + 'T00:00:00').toLocaleDateString()}
             </h3>
             <div className="text-sm text-gray-600 dark:text-gray-300">
               {activitiesByDay[index + 1]?.length ? (
-                activitiesByDay[index + 1].map((activity, idx) => (
-                  <div key={idx} className="flex justify-between items-start mb-2">
-                    {/* Left side: activity details */}
-                    <div className="">
+                activitiesByDay[index + 1].map((activity) => (
+                  <div key={activity.id} className="flex justify-between items-start mb-2">
+                    <div>
                       {activity.city && activity.country && (
-                        <div className="items-start flex font-semibold">
-                          {activity.location_name} — {activity.city}, {activity.country}
+                        <div>
+                          <div className="text-start flex font-semibold">
+                            {activity.location_name}
+                          </div>
+                          <div className="items-start flex font-semibold text-gray-300 text-md">
+                            {activity.city}, {activity.country}
+                          </div>
                         </div>
                       )}
                       <div className="items-start flex italic text-gray-400 text-sm">
@@ -51,14 +56,14 @@ export const ItinerarySection: React.FC<ItinerarySectionProps> = ({
                         {activity.description}
                       </div>
                     </div>
-                    {/* Right side: Edit/Delete buttons */}
                     <div className="flex gap-2 mx-10">
                       <EditDeleteActivityButtons
                         id={activity.id}
-                        itineraryDayId={activity.itinerary_day_id}
                         initialData={{
                           start_time: activity.start_time,
                           end_time: activity.end_time,
+                          date: activity.date,
+                          day_number: activity.day_number,
                           location_name: activity.location_name,
                           description: activity.description,
                           city: activity.city,

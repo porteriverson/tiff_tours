@@ -14,6 +14,7 @@ interface Tour {
 const AdminDashboard = () => {
   const [tours, setTours] = useState<Tour[]>([])
   const navigate = useNavigate()
+  const today = new Date().toISOString().split('T')[0] // 'YYYY-MM-DD'
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -23,7 +24,7 @@ const AdminDashboard = () => {
       const { data, error } = await supabase
         .from('tours')
         .select('id, title, start_date, end_date, is_published')
-        // .eq('created_by_user_id', user.id)
+        .gte('start_date', today)
         .order('start_date', { ascending: true })
 
       if (error) {
@@ -34,7 +35,7 @@ const AdminDashboard = () => {
     }
 
     fetchTours()
-  }, [tours])
+  }, [tours, today])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -48,7 +49,8 @@ const AdminDashboard = () => {
                 <div>
                   <h2 className="text-lg font-semibold">{tour.title}</h2>
                   <p className="text-sm text-gray-500">
-                    {tour.start_date} → {tour.end_date}
+                    {new Date(tour.start_date + 'T00:00:00').toLocaleDateString()} –{' '}
+                    {new Date(tour.end_date + 'T00:00:00').toLocaleDateString()}
                   </p>
                   <p className="text-xs text-gray-400">
                     {tour.is_published ? 'Published' : 'Draft'}

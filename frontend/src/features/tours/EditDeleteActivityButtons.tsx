@@ -4,10 +4,11 @@ import { AddActivityModal } from './AddActivityModal'
 
 interface Props {
   id: string
-  itineraryDayId: string
   initialData: {
     start_time: string
     end_time: string
+    date: string
+    day_number: number
     description: string
     location_name: string
     city: string
@@ -37,12 +38,15 @@ export const EditDeleteActivityButtons: React.FC<Props> = ({ id, initialData, on
 
   return (
     <div className="flex gap-2 items-center">
-      <button onClick={() => setShowModal(true)} className="text-blue-600 hover:underline text-sm">
+      <button
+        onClick={() => setShowModal(true)}
+        className="text-black-600 hover:bg-blue-800 text-sm bg-blue-600"
+      >
         Edit
       </button>
       <button
         onClick={handleDelete}
-        className="text-red-600 hover:underline text-sm"
+        className="text-black-600 hover:bg-red-800 text-sm bg-red-600"
         disabled={deleting}
       >
         {deleting ? 'Deleting...' : 'Delete'}
@@ -55,7 +59,7 @@ export const EditDeleteActivityButtons: React.FC<Props> = ({ id, initialData, on
           onClose={() => setShowModal(false)}
           tourId={''} // not needed for edit
           date={''} // not needed for edit
-          dayNumber={0} // not needed for edit
+          day_number={0} // not needed for edit
           activityId={id}
           initialData={initialData}
           onSuccess={() => {

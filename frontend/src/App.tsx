@@ -8,6 +8,8 @@ import Login from './features/auth/Login'
 import Register from './features/auth/Register'
 import ProtectedRoute from './features/auth/ProtectedRoute'
 import ManageTourPage from './pages/ManageToursPage'
+import TourDetails from './pages/TourDetails'
+import TravelerSignupPage from './pages/TravelerSignupPage'
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="tours/:tourId" element={<TourDetails />} />
+          <Route path="signup/:tourId" element={<TravelerSignupPage />} />
         </Routes>
       </BrowserRouter>
     </>

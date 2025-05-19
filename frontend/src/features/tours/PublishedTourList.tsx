@@ -53,8 +53,8 @@ const PublishedToursList = () => {
             </h3>
             <p className="text-gray-700 dark:text-gray-300 mb-2 line-clamp-3">{tour.description}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {new Date(tour.start_date).toLocaleDateString()} –{' '}
-              {new Date(tour.end_date).toLocaleDateString()}
+              {new Date(tour.start_date + 'T00:00:00').toLocaleDateString()} –{' '}
+              {new Date(tour.end_date + 'T00:00:00').toLocaleDateString()}
             </p>
           </Link>
         ))}

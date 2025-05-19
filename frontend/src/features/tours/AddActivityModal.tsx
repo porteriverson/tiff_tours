@@ -6,12 +6,14 @@ interface AddActivityModalProps {
   onClose: () => void
   tourId: string
   date: string
-  dayNumber: number
+  day_number: number
   onSuccess: () => void
   activityId?: string
   initialData?: {
     start_time?: string
     end_time?: string
+    date: string
+    day_number: number
     description: string
     location_name: string
     city: string
@@ -24,7 +26,7 @@ export const AddActivityModal = ({
   onClose,
   tourId,
   date,
-  dayNumber,
+  day_number,
   onSuccess,
   activityId,
   initialData,
@@ -32,6 +34,8 @@ export const AddActivityModal = ({
   const [formData, setFormData] = useState({
     start_time: '',
     end_time: '',
+    date: '',
+    day_number: 1,
     description: '',
     location_name: '',
     city: '',
@@ -40,12 +44,13 @@ export const AddActivityModal = ({
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (show && initialData) {
       setFormData({
         start_time: initialData.start_time || '',
         end_time: initialData.end_time || '',
+        date: initialData.date || '',
+        day_number: initialData.day_number || 1,
         description: initialData.description || '',
         location_name: initialData.location_name || '',
         city: initialData.city || '',
@@ -55,12 +60,7 @@ export const AddActivityModal = ({
   }, [show, initialData])
 
   useEffect(() => {
-    if (show) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-
+    document.body.style.overflow = show ? 'hidden' : ''
     return () => {
       document.body.style.overflow = ''
     }
@@ -94,37 +94,11 @@ export const AddActivityModal = ({
       return
     }
 
-    // INSERT logic
-    const { data: existingDay } = await supabase
-      .from('itinerary_days')
-      .select('id')
-      .eq('tour_id', tourId)
-      .eq('day_number', dayNumber)
-      .maybeSingle()
-
-    let itineraryDayId = existingDay?.id
-
-    if (!itineraryDayId) {
-      const { data: insertedDay, error: insertDayErr } = await supabase
-        .from('itinerary_days')
-        .insert([
-          { tour_id: tourId, day_number: dayNumber, title: `Day ${dayNumber}`, description: '' },
-        ])
-        .select()
-        .single()
-
-      if (insertDayErr) {
-        setError('Failed to create itinerary day')
-        setLoading(false)
-        return
-      }
-
-      itineraryDayId = insertedDay.id
-    }
-
     const { error: insertErr } = await supabase.from('itinerary_activities').insert([
       {
-        itinerary_day_id: itineraryDayId,
+        tour_id: tourId,
+        day_number: day_number,
+        date: date,
         start_time: formData.start_time || null,
         end_time: formData.end_time || null,
         description: formData.description,
@@ -175,6 +149,26 @@ export const AddActivityModal = ({
               className="w-full border rounded px-3 py-2"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium">Day Number</label>
+            <input
+              type="number"
+              name="day_number"
+              value={formData.day_number}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            />
+          </div>
+          {/* <div>
+            <label className="block text-sm font-medium">Date</label>
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            />
+          </div> */}
           <div>
             <label className="block text-sm font-medium">Start Time</label>
             <input

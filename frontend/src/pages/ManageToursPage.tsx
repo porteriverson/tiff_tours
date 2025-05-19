@@ -6,8 +6,9 @@ import { AddActivityModal } from '../features/tours/AddActivityModal'
 import { ItinerarySection } from '../features/tours/ItinerarySection'
 import { PublishToggle } from '../features/tours/PublishToggle'
 import { EditDeleteTourButton } from '../features/tours/EditDeleteTourButton'
+import { TravelerList } from '../features/admin/TravelerList'
 
-const sections = ['Itinerary', 'Accommodations', 'Transportation', 'Travelers']
+const sections = ['Itinerary', 'Travelers', 'Accommodations', 'Transportation']
 
 const ManageTourPage = () => {
   const { tourId } = useParams()
@@ -26,11 +27,7 @@ const ManageTourPage = () => {
   const fetchTour = useCallback(async () => {
     if (!tourId) return
 
-    const { data, error } = await supabase
-      .from('tours')
-      .select('title, start_date, end_date, is_published')
-      .eq('id', tourId)
-      .single()
+    const { data, error } = await supabase.from('tours').select('*').eq('id', tourId).single()
 
     if (error) {
       console.error(error)
@@ -50,14 +47,16 @@ const ManageTourPage = () => {
 
     const { data: activities, error: activitiesError } = await supabase
       .from('itinerary_activities')
-      .select('*, itinerary_days(day_number)')
-      .in('itinerary_days.tour_id', [tourId])
+      .select('*')
+      .in('tour_id', [tourId])
+      .order('day_number', { ascending: true })
+      .order('start_time', { ascending: true })
 
     if (!activitiesError && activities) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const grouped: Record<number, any[]> = {}
       for (const item of activities) {
-        const dayNum = item.itinerary_days?.day_number
+        const dayNum = item.day_number
         if (!dayNum) continue
         if (!grouped[dayNum]) grouped[dayNum] = []
         grouped[dayNum].push(item)
@@ -92,10 +91,22 @@ const ManageTourPage = () => {
         <button onClick={() => navigate('/admin')} className="bg-white hover:underline">
           ← Back to Dashboard
         </button>
+        <div className="mt-8 m-5 text-center">
+          {tourId && isPublished !== null && (
+            <PublishToggle
+              tourId={tourId}
+              initialPublished={isPublished}
+              onToggle={(newStatus) => setIsPublished(newStatus)}
+            />
+          )}
+          <EditDeleteTourButton />
+        </div>
         <h1 className="text-2xl font-bold mt-2">Manage Tour: {tourTitle}</h1>
         {tourDates && (
           <p className="text-sm text-gray-500">
-            {tourDates.start_date} to {tourDates.end_date} ({daysArray.length} days)
+            {new Date(tourDates.start_date + 'T00:00:00').toLocaleDateString()} –{' '}
+            {new Date(tourDates.end_date + 'T00:00:00').toLocaleDateString()} - ({daysArray.length}{' '}
+            days)
           </p>
         )}
       </div>
@@ -128,7 +139,7 @@ const ManageTourPage = () => {
         )}
         {activeTab === 'Accommodations' && <p>Accommodations manager coming soon...</p>}
         {activeTab === 'Transportation' && <p>Transportation manager coming soon...</p>}
-        {activeTab === 'Travelers' && <p>Traveler tools coming soon...</p>}
+        {activeTab === 'Travelers' && tourId && <TravelerList tourId={tourId} />}
       </div>
 
       {showModal && selectedDate && selectedDayNumber && tourId && (
@@ -137,23 +148,13 @@ const ManageTourPage = () => {
           onClose={() => setShowModal(false)}
           tourId={tourId}
           date={selectedDate}
-          dayNumber={selectedDayNumber}
+          day_number={selectedDayNumber}
           onSuccess={() => {
             setShowModal(false)
             fetchTour()
           }}
         />
       )}
-      <div className="mt-8 m-5 text-center">
-        {tourId && isPublished !== null && (
-          <PublishToggle
-            tourId={tourId}
-            initialPublished={isPublished}
-            onToggle={(newStatus) => setIsPublished(newStatus)}
-          />
-        )}
-        <EditDeleteTourButton />
-      </div>
     </div>
   )
 }

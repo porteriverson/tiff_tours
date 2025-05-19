@@ -81,8 +81,8 @@ const NavBar = () => {
           {[
             { label: 'Home', path: '/' },
             { label: 'About', path: '/about' },
-            { label: 'Join the Adventure', path: '/join' },
-            { label: 'Student Traveler', path: '/student' },
+            // { label: 'Join the Adventure', path: '/join' },
+            // { label: 'Student Traveler', path: '/student' },
           ].map((item) => (
             <li key={item.path}>
               <span
@@ -169,8 +169,8 @@ const NavBar = () => {
             {[
               { label: 'Home', path: '/' },
               { label: 'About', path: '/about' },
-              { label: 'Join the Adventure', path: '/join' },
-              { label: 'Student Traveler', path: '/student' },
+              // { label: 'Join the Adventure', path: '/join' },
+              // { label: 'Student Traveler', path: '/student' },
             ].map((item) => (
               <li key={item.path}>
                 <span
@@ -217,6 +217,16 @@ const NavBar = () => {
             </li>
 
             {/* Auth */}
+            <li>
+              <span
+                onClick={() => handleNavClick('/admin')}
+                className={`cursor-pointer hover:text-indigo-400 transition-colors ${
+                  location.pathname === '/admin' ? 'text-indigo-600 font-semibold underline' : ''
+                }`}
+              >
+                Dashboard
+              </span>
+            </li>
             <li>
               {user ? (
                 <span
