@@ -8,6 +8,8 @@ const NavBar = () => {
   const navigate = useNavigate()
   const [expanded, setExpanded] = useState(false)
   const [user, setUser] = useState<User | null>(null)
+  const [showToursDropdown, setShowToursDropdown] = useState(false)
+  const [showToursMobile, setShowToursMobile] = useState(false)
 
   const handleNavClick = (path: string) => {
     setExpanded(false)
@@ -46,7 +48,7 @@ const NavBar = () => {
           onClick={() => handleNavClick('/')}
         >
           <img src="/tiff-logo.png" alt="Tiff Tours Logo" className="h-8 w-8" />
-          <span>Tiff Tours</span>
+          <span>Tiffany's Tours</span>
         </div>
 
         {/* Mobile Toggle */}
@@ -74,15 +76,18 @@ const NavBar = () => {
         </button>
 
         {/* Desktop Menu */}
-        <ul className="hidden md:flex space-x-6 text-gray-800 font-medium">
+        <ul className="hidden md:flex space-x-6 text-gray-800 font-medium items-center">
+          {/* Other top-level links like Home, About, etc. */}
           {[
             { label: 'Home', path: '/' },
             { label: 'About', path: '/about' },
+            { label: 'Join the Adventure', path: '/join' },
+            { label: 'Student Traveler', path: '/student' },
           ].map((item) => (
             <li key={item.path}>
               <span
                 onClick={() => handleNavClick(item.path)}
-                className={`cursor-pointer hover:text-indigo-400 transition-colors  ${
+                className={`cursor-pointer hover:text-indigo-400 transition-colors ${
                   location.pathname === item.path ? 'text-indigo-600 font-semibold underline' : ''
                 }`}
               >
@@ -90,6 +95,33 @@ const NavBar = () => {
               </span>
             </li>
           ))}
+          <li>
+            <div
+              className="relative cursor-pointer"
+              onMouseEnter={() => setShowToursDropdown(true)}
+              onMouseLeave={() => setShowToursDropdown(false)}
+            >
+              <span className="hover:text-indigo-400 transition-colors">Tours</span>
+              {showToursDropdown && (
+                <ul className="absolute mt-2 bg-white border rounded shadow text-left text-sm z-50">
+                  {[
+                    { label: 'Upcoming', path: '/tours/upcoming' },
+                    { label: 'Previous', path: '/tours/previous' },
+                  ].map((item) => (
+                    <li
+                      key={item.path}
+                      className="px-4 py-2 hover:bg-indigo-100 cursor-pointer"
+                      onClick={() => handleNavClick(item.path)}
+                    >
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </li>
+
+          {/* Auth buttons */}
           {user && (
             <>
               <li>
@@ -112,16 +144,17 @@ const NavBar = () => {
               </li>
             </>
           )}
-
           {!user && (
-            <span
-              onClick={() => handleNavClick('/admin')}
-              className={`cursor-pointer hover:text-indigo-400 transition-colors  ${
-                location.pathname === '/admin' ? 'text-indigo-600 font-semibold underline' : ''
-              }`}
-            >
-              Sign In
-            </span>
+            <li>
+              <span
+                onClick={() => handleNavClick('/admin')}
+                className={`cursor-pointer hover:text-indigo-400 transition-colors ${
+                  location.pathname === '/admin' ? 'text-indigo-600 font-semibold underline' : ''
+                }`}
+              >
+                Sign In
+              </span>
+            </li>
           )}
         </ul>
       </div>
@@ -129,10 +162,15 @@ const NavBar = () => {
       {/* Mobile Menu */}
       {expanded && (
         <div className="md:hidden px-6 pb-4 bg-white border-t border-gray-200">
-          <ul className="flex flex-col space-y-2 text-gray-700">
+          <ul className="flex flex-col space-y-2 text-gray-700 items-start">
+            {/* Tours dropdown toggle */}
+
+            {/* Other pages */}
             {[
               { label: 'Home', path: '/' },
               { label: 'About', path: '/about' },
+              { label: 'Join the Adventure', path: '/join' },
+              { label: 'Student Traveler', path: '/student' },
             ].map((item) => (
               <li key={item.path}>
                 <span
@@ -146,10 +184,44 @@ const NavBar = () => {
               </li>
             ))}
             <li>
+              <div
+                className="flex justify-between items-center cursor-pointer py-2"
+                onClick={() => setShowToursMobile(!showToursMobile)}
+              >
+                <span className="font-medium">Tours</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d={showToursMobile ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'}
+                  />
+                </svg>
+              </div>
+              {showToursMobile && (
+                <ul className="pl-4 space-y-2 items-start">
+                  <li
+                    onClick={() => handleNavClick('/tours/upcoming')}
+                    className="cursor-pointer hover:text-indigo-500"
+                  >
+                    Upcoming Tours
+                  </li>
+                  <li
+                    onClick={() => handleNavClick('/tours/previous')}
+                    className="cursor-pointer hover:text-indigo-500"
+                  >
+                    Previous Tours
+                  </li>
+                </ul>
+              )}
+            </li>
+
+            {/* Auth */}
+            <li>
               {user ? (
                 <span
                   onClick={handleLogout}
-                  className="block w-full text-left text-red-600 hover:text-red-700 font-semibold py-2"
+                  className="block w-full text-red-600 hover:text-red-700 font-semibold py-2"
                 >
                   Log Out
                 </span>
