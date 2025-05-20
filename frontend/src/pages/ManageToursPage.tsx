@@ -7,8 +7,9 @@ import { ItinerarySection } from '../features/tours/ItinerarySection'
 import { PublishToggle } from '../features/tours/PublishToggle'
 import { EditDeleteTourButton } from '../features/tours/EditDeleteTourButton'
 import { TravelerList } from '../features/admin/TravelerList'
+import TourImageManager from '../features/admin/TourImageManager'
 
-const sections = ['Itinerary', 'Travelers', 'Accommodations', 'Transportation']
+const sections = ['Itinerary', 'Travelers', 'Accommodations', 'Transportation', 'Images']
 
 const ManageTourPage = () => {
   const { tourId } = useParams()
@@ -140,6 +141,12 @@ const ManageTourPage = () => {
         {activeTab === 'Accommodations' && <p>Accommodations manager coming soon...</p>}
         {activeTab === 'Transportation' && <p>Transportation manager coming soon...</p>}
         {activeTab === 'Travelers' && tourId && <TravelerList tourId={tourId} />}
+        {activeTab === 'Images' && tourId && (
+          <div className="p-4">
+            <h2 className="text-lg font-semibold mb-4">Manage Tour Images</h2>
+            <TourImageManager tourId={tourId} />
+          </div>
+        )}
       </div>
 
       {showModal && selectedDate && selectedDayNumber && tourId && (

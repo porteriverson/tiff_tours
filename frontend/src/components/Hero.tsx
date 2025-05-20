@@ -6,6 +6,7 @@ interface HeroProps {
   subtitle: string
   buttonText?: string
   buttonLink?: string
+  onClick?: () => void
 }
 
 const Hero: React.FC<HeroProps> = ({ image, title, subtitle, buttonText, buttonLink }) => {

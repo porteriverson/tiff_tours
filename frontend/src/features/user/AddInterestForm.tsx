@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { supabase } from '../../services/supabaseClient'
 import { useNavigate } from 'react-router-dom'
 
-interface AddTravelerFormProps {
+interface AddInterestFormProps {
   tourId: string
-  userId: string
+  userId: string | null
   onSuccess?: () => void
 }
 
-export const AddTravelerForm: React.FC<AddTravelerFormProps> = ({ tourId, userId, onSuccess }) => {
+export const AddInterestForm: React.FC<AddInterestFormProps> = ({ tourId, userId, onSuccess }) => {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -44,7 +44,7 @@ export const AddTravelerForm: React.FC<AddTravelerFormProps> = ({ tourId, userId
       setSuccess(true)
       if (onSuccess) onSuccess()
       setFormData({ full_name: '', email: '', phone: '' })
-      setTimeout(() => navigate('/'), 3000)
+      setTimeout(() => navigate(`/tours/${tourId}`), 3000)
     }
 
     setLoading(false)
@@ -55,8 +55,7 @@ export const AddTravelerForm: React.FC<AddTravelerFormProps> = ({ tourId, userId
       onSubmit={handleSubmit}
       className="bg-white dark:bg-gray-800 p-4 rounded shadow max-w-md mx-auto space-y-4"
     >
-      <h2 className="text-xl font-bold">Sign Up for your trip</h2>
-      <label className="items-start">Full Name</label>
+      <h2 className="text-xl font-bold">Register your interest for this trip</h2>
       <input
         name="full_name"
         type="text"
@@ -73,6 +72,7 @@ export const AddTravelerForm: React.FC<AddTravelerFormProps> = ({ tourId, userId
         value={formData.email}
         onChange={handleChange}
         className="w-full p-2 border rounded"
+        required
       />
       <input
         name="phone"
@@ -88,11 +88,11 @@ export const AddTravelerForm: React.FC<AddTravelerFormProps> = ({ tourId, userId
         disabled={loading}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
-        {loading ? 'Submitting...' : 'Add Traveler'}
+        {loading ? 'Submitting...' : 'Register Interest'}
       </button>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      {success && <p className="text-green-600 text-sm">Traveler added successfully!</p>}
+      {success && <p className="text-green-600 text-sm">Registered successfully!</p>}
     </form>
   )
 }

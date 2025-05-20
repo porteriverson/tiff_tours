@@ -34,7 +34,7 @@ const TourItinerary = ({ activities }: { activities: Activity[] }) => {
     .sort((a, b) => a - b)
 
   return (
-    <div className="max-w-150">
+    <div className="w-full">
       <h2 className="text-2xl font-bold mb-6">Itinerary</h2>
 
       {sortedDays.map((dayNum) => (

@@ -11,7 +11,7 @@ export const TourOverview = ({
   const dayCount = calculateTripLength(dates.start, dates.end)
 
   return (
-    <section className="text-start p-8">
+    <section className="p-8">
       <h1 className="text-3xl font-bold">{title}</h1>
       <p className="text-gray-500 text-2xl">
         {formattedRange} &nbsp;|&nbsp; {dayCount} day{dayCount > 1 ? 's' : ''}
