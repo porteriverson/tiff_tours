@@ -9,37 +9,42 @@ import Register from './features/auth/Register'
 import ProtectedRoute from './features/auth/ProtectedRoute'
 import ManageTourPage from './pages/ManageToursPage'
 import TourDetailsPage from './pages/TourDetailsPage'
+import UpcomingToursPage from './pages/UpcomingToursPage'
+import Footer from './components/Footer'
 
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <NavBar />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute requireAdmin>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/admin/tours/:tourId"
-            element={
-              <ProtectedRoute requireAdmin>
-                <ManageTourPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="tours/:tourId" element={<TourDetailsPage />} />
-          {/* <Route path="signup/:tourId" element={<TravelerSignupPage />} /> */}
-        </Routes>
-      </BrowserRouter>
+      <div className="min-h-screen">
+        <BrowserRouter>
+          <NavBar />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/admin/tours/:tourId"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ManageTourPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="tours/:tourId" element={<TourDetailsPage />} />
+            <Route path="tours/upcoming" element={<UpcomingToursPage />} />
+          </Routes>
+          <Footer />
+        </BrowserRouter>
+      </div>
     </>
   )
 }

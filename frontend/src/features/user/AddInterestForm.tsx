@@ -43,6 +43,7 @@ export const AddInterestForm: React.FC<AddInterestFormProps> = ({ tourId, userId
     } else {
       setSuccess(true)
       if (onSuccess) onSuccess()
+      alert('Thank you! You will receive an email when more information is available')
       setFormData({ full_name: '', email: '', phone: '' })
       setTimeout(() => navigate(`/tours/${tourId}`), 3000)
     }

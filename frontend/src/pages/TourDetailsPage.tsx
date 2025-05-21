@@ -84,7 +84,7 @@ const TourDetailsPage = () => {
 
   return (
     <>
-      <div className="min-w-screen">
+      <div className="min-w-screen min-h-screen">
         {tour.is_published ? (
           <div className="flex flex-col items-center px-6 py-10">
             {/* Top Overview Section */}

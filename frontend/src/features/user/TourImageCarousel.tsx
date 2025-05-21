@@ -70,49 +70,53 @@ const TourImageCarousel = ({ tourId }: { tourId: string }) => {
   }
 
   return (
-    <div
-      ref={containerRef}
-      className={`relative w-full ${isFullscreen ? 'h-screen fixed top-0 left-0 z-50 bg-black' : 'h-96'} overflow-hidden rounded shadow`}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      <img
-        src={imageUrls[current]}
-        alt={`Tour image ${current + 1}`}
-        className="object-cover w-full h-full transition duration-300 cursor-pointer"
-        onClick={toggleFullscreen}
-      />
-      {imageUrls.length > 1 && (
-        <>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              prevSlide()
-            }}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 text-black rounded-full p-2"
-          >
-            ‹
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              nextSlide()
-            }}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 text-black rounded-full p-2"
-          >
-            ›
-          </button>
-        </>
-      )}
-      {isFullscreen && (
-        <button
-          onClick={toggleFullscreen}
-          className="absolute top-4 right-4 text-white bg-black bg-opacity-60 px-3 py-1 rounded"
+    <>
+      <div>
+        <div
+          ref={containerRef}
+          className={`relative w-full ${isFullscreen ? 'h-screen fixed top-0 left-0 z-50 bg-black' : 'h-96'} overflow-hidden rounded shadow`}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
-          Close
-        </button>
-      )}
-    </div>
+          <img
+            src={imageUrls[current]}
+            alt={`Tour image ${current + 1}`}
+            className="object-cover w-full h-full transition duration-300 cursor-pointer"
+            onClick={toggleFullscreen}
+          />
+          {imageUrls.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  prevSlide()
+                }}
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 text-black rounded-full p-2"
+              >
+                ‹
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  nextSlide()
+                }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 text-black rounded-full p-2"
+              >
+                ›
+              </button>
+            </>
+          )}
+          {isFullscreen && (
+            <button
+              onClick={toggleFullscreen}
+              className="absolute top-4 right-4 text-white bg-black bg-opacity-60 px-3 py-1 rounded"
+            >
+              Close
+            </button>
+          )}
+        </div>
+      </div>
+    </>
   )
 }
 
