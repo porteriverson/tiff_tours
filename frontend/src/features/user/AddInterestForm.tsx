@@ -10,9 +10,12 @@ interface AddInterestFormProps {
 
 export const AddInterestForm: React.FC<AddInterestFormProps> = ({ tourId, userId, onSuccess }) => {
   const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    phone: '',
+    student_name: '',
+    student_email: '',
+    student_phone: '',
+    student_school: '',
+    grad_year: '',
+    gpa: '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,7 +33,7 @@ export const AddInterestForm: React.FC<AddInterestFormProps> = ({ tourId, userId
     setError(null)
     setSuccess(false)
 
-    const { error } = await supabase.from('travelers').insert([
+    const { error } = await supabase.from('potential_travelers').insert([
       {
         ...formData,
         user_id: userId,
@@ -44,7 +47,14 @@ export const AddInterestForm: React.FC<AddInterestFormProps> = ({ tourId, userId
       setSuccess(true)
       if (onSuccess) onSuccess()
       alert('Thank you! You will receive an email when more information is available')
-      setFormData({ full_name: '', email: '', phone: '' })
+      setFormData({
+        student_name: '',
+        student_email: '',
+        student_phone: '',
+        student_school: '',
+        grad_year: '',
+        gpa: '',
+      })
       setTimeout(() => navigate(`/tours/${tourId}`), 3000)
     }
 
@@ -58,28 +68,52 @@ export const AddInterestForm: React.FC<AddInterestFormProps> = ({ tourId, userId
     >
       <h2 className="text-xl font-bold">Register your interest for this trip</h2>
       <input
-        name="full_name"
+        name="student_name"
         type="text"
         placeholder="Traveler's Full Name"
-        value={formData.full_name}
+        value={formData.student_name}
         onChange={handleChange}
         required
         className="w-full p-2 border rounded"
       />
       <input
-        name="email"
+        name="student_email"
         type="email"
         placeholder="Traveler's Email"
-        value={formData.email}
+        value={formData.student_email}
         onChange={handleChange}
         className="w-full p-2 border rounded"
         required
       />
       <input
-        name="phone"
+        name="student_phone"
         type="tel"
         placeholder="Traveler's Phone Number"
-        value={formData.phone}
+        value={formData.student_phone}
+        onChange={handleChange}
+        className="w-full p-2 border rounded"
+      />
+      <input
+        name="student_school"
+        type="text"
+        placeholder="Student's School"
+        value={formData.student_school}
+        onChange={handleChange}
+        className="w-full p-2 border rounded"
+      />
+      <input
+        name="grad_year"
+        type="text"
+        placeholder="Graduation Year"
+        value={formData.grad_year}
+        onChange={handleChange}
+        className="w-full p-2 border rounded"
+      />
+      <input
+        name="gpa"
+        type="text"
+        placeholder="GPA"
+        value={formData.gpa}
         onChange={handleChange}
         className="w-full p-2 border rounded"
       />

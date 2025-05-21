@@ -11,6 +11,7 @@ import ManageTourPage from './pages/ManageToursPage'
 import TourDetailsPage from './pages/TourDetailsPage'
 import UpcomingToursPage from './pages/UpcomingToursPage'
 import Footer from './components/Footer'
+import RecommendationPage from './pages/RecommendationPage'
 
 function App() {
   return (
@@ -39,8 +40,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="tours/:tourId" element={<TourDetailsPage />} />
-            <Route path="tours/upcoming" element={<UpcomingToursPage />} />
+            <Route path="/tours/:tourId" element={<TourDetailsPage />} />
+            <Route path="/tours" element={<UpcomingToursPage />} />
+            <Route path="/recommend" element={<RecommendationPage />} />
           </Routes>
           <Footer />
         </BrowserRouter>

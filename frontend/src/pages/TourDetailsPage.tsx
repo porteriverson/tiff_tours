@@ -25,6 +25,7 @@ type Tour = {
   start_date: string
   end_date: string
   hero_image_url: string
+  price: number
   is_published: boolean
   images: string[]
 }
@@ -36,6 +37,10 @@ const TourDetailsPage = () => {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+
+  const handleBooking = () => {
+    alert('Booking information temporarily unavailable. For now, register as interested!')
+  }
 
   useEffect(() => {
     const fetchTourData = async () => {
@@ -84,9 +89,9 @@ const TourDetailsPage = () => {
 
   return (
     <>
-      <div className="min-w-screen min-h-screen">
+      <div className="min-w-screen min-h-screen bg-gray-900">
         {tour.is_published ? (
-          <div className="flex flex-col items-center px-6 py-10">
+          <div className="flex flex-col items-center px-6 py-18">
             {/* Top Overview Section */}
             <TourOverview
               title={tour.title}
@@ -107,7 +112,7 @@ const TourDetailsPage = () => {
                 <div className="bg-white dark:bg-gray-800 rounded shadow-lg p-6 w-full max-w-lg relative">
                   <button
                     onClick={() => setShowModal(false)}
-                    className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 dark:text-gray-300"
+                    className="absolute top-2 right-2 text-gray-600 bg-gray-200 hover:bg-gray-400 dark:text-gray-300"
                   >
                     &times;
                   </button>
@@ -129,6 +134,18 @@ const TourDetailsPage = () => {
                 {/* Future TourImages Component Placeholder */}
                 <div className="w-full bg-gray-800 rounded shadow text-center p-4 text-gray-500">
                   <TourImageCarousel tourId={tour.id} />
+                </div>
+                <div className="w-full pt-18">
+                  <h1 className="">
+                    Early Bird Discount: <br /> ${tour.price}
+                  </h1>
+                  <p>$100 deposit to save your spot!</p>
+                  <button
+                    onClick={() => handleBooking()}
+                    className=" mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  >
+                    Book Now
+                  </button>
                 </div>
               </div>
             </div>

@@ -6,10 +6,17 @@ import { AddActivityModal } from '../features/tours/AddActivityModal'
 import { ItinerarySection } from '../features/tours/ItinerarySection'
 import { PublishToggle } from '../features/tours/PublishToggle'
 import { EditDeleteTourButton } from '../features/tours/EditDeleteTourButton'
-import { TravelerList } from '../features/admin/TravelerList'
+import { InterestedList } from '../features/admin/InterestedList'
 import TourImageManager from '../features/admin/TourImageManager'
 
-const sections = ['Itinerary', 'Travelers', 'Accommodations', 'Transportation', 'Images']
+const sections = [
+  'Itinerary',
+  'Booked Travelers',
+  'Interest',
+  'Images',
+  'Accommodations',
+  'Transportation',
+]
 
 const ManageTourPage = () => {
   const { tourId } = useParams()
@@ -87,7 +94,7 @@ const ManageTourPage = () => {
   }
 
   return (
-    <div className="p-6 min-w-screen mx-auto m-18">
+    <div className="p-6 min-w-screen min-h-screen mx-auto m-18">
       <div className="mb-6">
         <button onClick={() => navigate('/admin')} className="bg-white hover:underline">
           ← Back to Dashboard
@@ -140,7 +147,8 @@ const ManageTourPage = () => {
         )}
         {activeTab === 'Accommodations' && <p>Accommodations manager coming soon...</p>}
         {activeTab === 'Transportation' && <p>Transportation manager coming soon...</p>}
-        {activeTab === 'Travelers' && tourId && <TravelerList tourId={tourId} />}
+        {activeTab === 'Booked Travelers' && tourId}
+        {activeTab === 'Interest' && tourId && <InterestedList tourId={tourId} />}
         {activeTab === 'Images' && tourId && (
           <div className="p-4">
             <h2 className="text-lg font-semibold mb-4">Manage Tour Images</h2>

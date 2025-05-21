@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../services/supabaseClient'
+import { supabase } from '../../services/supabaseClient'
 
 interface Profile {
   id: string
@@ -88,7 +88,7 @@ export const UserRolesManager = () => {
                       onChange={(e) => updateRole(user.id, e.target.value)}
                       className="border rounded px-2 py-1"
                     >
-                      <option value="customer">Customer</option>
+                      <option value="traveler">Traveler</option>
                       <option value="admin">Admin</option>
                     </select>
                   </td>

@@ -47,8 +47,8 @@ const NavBar = () => {
           className="flex items-center cursor-pointer text-2xl font-bold text-indigo-600 space-x-2"
           onClick={() => handleNavClick('/')}
         >
-          <img src="/tiff-logo.png" alt="Tiff Tours Logo" className="h-8 w-8" />
-          <span>Tiffany's Tours</span>
+          <img src="/TTLogo.png" alt="Tiff Tours Logo" className="h-8 w-8" />
+          <span className="text-gray-800">Tiffany's Tours</span>
         </div>
 
         {/* Mobile Toggle */}

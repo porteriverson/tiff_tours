@@ -1,4 +1,5 @@
-import { UserRolesManager } from '../components/UserRolesManager'
+import { RecommendedList } from '../features/admin/RecommendedList'
+import { UserRolesManager } from '../features/admin/UserRolesManager'
 import CreateTourForm from '../features/tours/CreateTourForm'
 import TourList from '../features/tours/TourList'
 
@@ -17,13 +18,12 @@ function AdminDashboard() {
 
         {/* Right Panel: Form and future features */}
         <div className="md:w-1/2 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Traveler Information</h2>
-          <p>Future information about travelers to go here. </p>
+          <UserRolesManager />
         </div>
       </div>
       <div className="flex flex-col md:flex-row gap-6 mx-auto justify-center p-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <UserRolesManager />
+          <RecommendedList />
         </div>
       </div>
     </div>
