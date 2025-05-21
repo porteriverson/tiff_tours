@@ -94,7 +94,7 @@ const ManageTourPage = () => {
   }
 
   return (
-    <div className="p-6 min-w-screen min-h-screen mx-auto m-18">
+    <div className="py-24 min-w-screen min-h-screen container mx-auto px-18">
       <div className="mb-6">
         <button onClick={() => navigate('/admin')} className="bg-white hover:underline">
           ← Back to Dashboard
