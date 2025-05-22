@@ -5,6 +5,7 @@ import { TourOverview } from '../features/user/TourOverview'
 import TourItinerary from '../features/user/TourItinerary'
 import { AddInterestForm } from '../features/user/AddInterestForm'
 import TourImageCarousel from '../features/user/TourImageCarousel'
+import BookingForm from '../features/user/BookingForm'
 
 type Activity = {
   id: number
@@ -36,11 +37,8 @@ const TourDetailsPage = () => {
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [showBookingModal, setShowBookingModal] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
-
-  const handleBooking = () => {
-    alert('Booking information temporarily unavailable. For now, register as interested!')
-  }
 
   useEffect(() => {
     const fetchTourData = async () => {
@@ -141,11 +139,31 @@ const TourDetailsPage = () => {
                   </h1>
                   <p>$100 deposit to save your spot!</p>
                   <button
-                    onClick={() => handleBooking()}
-                    className=" mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    onClick={() => setShowBookingModal(true)}
+                    className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                   >
                     Book Now
                   </button>
+                  {showBookingModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                      <div className="relative w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded shadow">
+                        <button
+                          onClick={() => setShowBookingModal(false)}
+                          className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+                        >
+                          &times;
+                        </button>
+                        <BookingForm
+                          tourId={tour.id}
+                          userId={userId}
+                          onClose={() => setShowBookingModal(false)}
+                          onSuccess={() => {
+                            // e.g. show a toast or re-fetch bookings
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

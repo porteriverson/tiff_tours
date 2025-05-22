@@ -27,6 +27,9 @@ function AdminDashboard() {
         <h2 className="text-xl font-semibold mb-4">Recommended</h2>
         <RecommendedList />
       </section>
+      <section className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-7xl mx-auto">
+        <h2 className="text-xl font-semibold mb-4">Room Assignments</h2>
+      </section>
     </div>
   )
 }

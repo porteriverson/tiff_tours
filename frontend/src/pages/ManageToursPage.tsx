@@ -8,6 +8,7 @@ import { PublishToggle } from '../features/tours/PublishToggle'
 import { EditDeleteTourButton } from '../features/tours/EditDeleteTourButton'
 import { InterestedList } from '../features/admin/InterestedList'
 import TourImageManager from '../features/admin/TourImageManager'
+import { BookedList } from '../features/admin/BookedList'
 
 const sections = [
   'Itinerary',
@@ -147,7 +148,12 @@ const ManageTourPage = () => {
         )}
         {activeTab === 'Accommodations' && <p>Accommodations manager coming soon...</p>}
         {activeTab === 'Transportation' && <p>Transportation manager coming soon...</p>}
-        {activeTab === 'Booked Travelers' && tourId}
+        {activeTab === 'Booked Travelers' && tourId && (
+          <div className="p-4 bg-white dark:bg-gray-800 rounded shadow">
+            <BookedList tourId={tourId} />
+          </div>
+        )}
+
         {activeTab === 'Interest' && tourId && <InterestedList tourId={tourId} />}
         {activeTab === 'Images' && tourId && (
           <div className="p-4">
