@@ -34,7 +34,7 @@ const Register = () => {
       if (userId) {
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert([{ id: userId, name, role: 'traveler' }])
+          .insert([{ id: userId, name, email, role: 'traveler' }])
 
         if (profileError) {
           console.error('Profile insert error:', profileError.message)

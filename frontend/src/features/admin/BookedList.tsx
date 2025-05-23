@@ -36,16 +36,16 @@ export const BookedList: React.FC<{ tourId: string }> = ({ tourId }) => {
         .from('booked_travelers')
         .select(
           `
-          id,
-          student_name,
-          student_gender,
-          room_preference_1,
-          room_preference_2,
-          room_preference_3,
-          medical_form_complete,
-          travel_forms_complete,
-          user:profiles(email)
-        `
+     id,
+     student_name,
+     student_gender,
+     room_preference_1,
+     room_preference_2,
+     room_preference_3,
+     medical_form_complete,
+     travel_forms_complete,
+     user:profiles(email)
+   `
         )
         .eq('tour_id', tourId)
 
@@ -172,7 +172,7 @@ export const BookedList: React.FC<{ tourId: string }> = ({ tourId }) => {
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300 text-sm">
-          <thead className="bg-gray-100">
+          <thead className="bg-gray-700">
             <tr>
               <th className="px-2 py-2 border text-center">
                 <input
@@ -184,6 +184,7 @@ export const BookedList: React.FC<{ tourId: string }> = ({ tourId }) => {
                 />
               </th>
               <th className="px-4 py-2 border text-left">Name</th>
+              <th className="px-4 py-2 border text-left">Email</th>
               <th className="px-4 py-2 border text-left">Gender</th>
               <th className="px-4 py-2 border text-left">Pref 1</th>
               <th className="px-4 py-2 border text-left">Pref 2</th>
@@ -203,6 +204,7 @@ export const BookedList: React.FC<{ tourId: string }> = ({ tourId }) => {
                   />
                 </td>
                 <td className="px-4 py-2 border">{renderCell(r, 'student_name')}</td>
+                <td className="px-4 py-2 border">{r.user?.email ?? ''}</td>
                 <td className="px-4 py-2 border">{renderCell(r, 'student_gender')}</td>
                 <td className="px-4 py-2 border">{renderCell(r, 'room_preference_1')}</td>
                 <td className="px-4 py-2 border">{renderCell(r, 'room_preference_2')}</td>
