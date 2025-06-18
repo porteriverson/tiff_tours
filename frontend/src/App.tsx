@@ -12,6 +12,7 @@ import TourDetailsPage from './pages/TourDetailsPage'
 import UpcomingToursPage from './pages/UpcomingToursPage'
 import Footer from './components/Footer'
 import RecommendationPage from './pages/RecommendationPage'
+import { Analytics } from '@vercel/analytics/react'
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
             <Route path="/recommend" element={<RecommendationPage />} />
           </Routes>
           <Footer />
+          <Analytics />
         </BrowserRouter>
       </div>
     </>
