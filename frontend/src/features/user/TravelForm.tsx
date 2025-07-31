@@ -11,7 +11,6 @@ const TravelForm: React.FC<TravelFormProps> = ({ onClose, onSuccess }) => {
   const [guardianName, setGuardianName] = useState('')
   const [guardianCell, setGuardianCell] = useState('')
   const [age, setAge] = useState(0)
-  const [gender, setGender] = useState<'male' | 'female'>('female')
   const [allergies, setAllergies] = useState('')
   const [questions, setQuestions] = useState('')
   const [loading, setLoading] = useState(false)
@@ -21,7 +20,7 @@ const TravelForm: React.FC<TravelFormProps> = ({ onClose, onSuccess }) => {
     e.preventDefault()
     setErrorMsg(null)
 
-    if (!email || !name || !gender) {
+    if (!email || !name) {
       setErrorMsg('Please fill out all required fields.')
       return
     }
@@ -32,7 +31,6 @@ const TravelForm: React.FC<TravelFormProps> = ({ onClose, onSuccess }) => {
     console.log('Submitting form with data:', {
       email,
       name,
-      gender,
       allergies,
       questions,
     })
@@ -111,9 +109,10 @@ const TravelForm: React.FC<TravelFormProps> = ({ onClose, onSuccess }) => {
           <span className="text-red-600">*</span>Parent/Guardian Cell Number
         </span>
         <input
-          type="text" value={guardianCell}
+          type="text"
+          value={guardianCell}
           onChange={(e) => setGuardianCell(e.target.value)}
-          className="mt-1 px-2 py-1 border rounded" 
+          className="mt-1 px-2 py-1 border rounded"
           required
         />
       </label>
