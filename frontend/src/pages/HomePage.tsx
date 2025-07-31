@@ -10,7 +10,7 @@ function HomePage() {
           title="Tiffany's Tours"
           subtitle="Oh, the places you'll go!"
           buttonText="Join the Adventure"
-          buttonLink="/tours/upcoming"
+          buttonLink="/tours"
         />
         <div className="min-w-screen items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 text-center px-4">
           <div className="flex justify-center">

@@ -13,6 +13,7 @@ import UpcomingToursPage from './pages/UpcomingToursPage'
 import Footer from './components/Footer'
 import RecommendationPage from './pages/RecommendationPage'
 import { Analytics } from '@vercel/analytics/react'
+import TravelerDashboard from './pages/TravelerDashboardPage'
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/traveler" element={<TravelerDashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route

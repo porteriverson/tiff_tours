@@ -8,12 +8,26 @@ const NavBar = () => {
   const navigate = useNavigate()
   const [expanded, setExpanded] = useState(false)
   const [user, setUser] = useState<User | null>(null)
-  const [showToursDropdown, setShowToursDropdown] = useState(false)
-  const [showToursMobile, setShowToursMobile] = useState(false)
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   const handleNavClick = (path: string) => {
     setExpanded(false)
     navigate(path)
+  }
+
+  // A specific function for dashboard navigation
+  const handleDashboardClick = () => {
+    setExpanded(false)
+    // console.log('User role:', userRole)
+    // console.log('UserID:', user?.id)
+    if (userRole === 'admin') {
+      navigate('/admin')
+    } else if (userRole === 'traveler') {
+      navigate('/traveler')
+    } else {
+      // You can handle this case if a user is logged in but has no role
+      navigate('/')
+    }
   }
 
   const handleLogout = async () => {
@@ -22,18 +36,40 @@ const NavBar = () => {
     navigate('/') // Redirect after logout
   }
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser()
-      setUser(data.user)
+  // New combined function to fetch user and profile
+  const fetchUserAndRole = async (session: { user: User } | null) => {
+    if (session?.user) {
+      setUser(session.user)
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single()
+
+        if (error) {
+          console.error('Error fetching user profile:', error)
+          setUserRole(null)
+        } else {
+          setUserRole(profile?.role || null)
+        }
+      } catch (e) {
+        console.error('An unexpected error occurred:', e)
+        setUserRole(null)
+      }
+    } else {
+      setUser(null)
+      setUserRole(null)
     }
+  }
 
-    getUser()
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+  useEffect(() => {
+    // This listener will be the single source of truth for user state
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      await fetchUserAndRole(session)
     })
 
+    // Clean up the listener on component unmount
     return () => {
       listener.subscription.unsubscribe()
     }
@@ -81,7 +117,7 @@ const NavBar = () => {
           {[
             { label: 'Home', path: '/' },
             { label: 'About', path: '/about' },
-            // { label: 'Join the Adventure', path: '/join' },
+            { label: 'Tours', path: '/tours' },
             // { label: 'Student Traveler', path: '/student' },
           ].map((item) => (
             <li key={item.path}>
@@ -95,38 +131,12 @@ const NavBar = () => {
               </span>
             </li>
           ))}
-          <li>
-            <div
-              className="relative cursor-pointer"
-              onMouseEnter={() => setShowToursDropdown(true)}
-              onMouseLeave={() => setShowToursDropdown(false)}
-            >
-              <span className="hover:text-indigo-400 transition-colors">Tours</span>
-              {showToursDropdown && (
-                <ul className="absolute mt-2 bg-white border rounded shadow text-left text-sm z-50">
-                  {[
-                    { label: 'Upcoming', path: '/tours/upcoming' },
-                    { label: 'Previous', path: '/tours/previous' },
-                  ].map((item) => (
-                    <li
-                      key={item.path}
-                      className="px-4 py-2 hover:bg-indigo-100 cursor-pointer"
-                      onClick={() => handleNavClick(item.path)}
-                    >
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </li>
-
           {/* Auth buttons */}
           {user && (
             <>
               <li>
                 <span
-                  onClick={() => handleNavClick('/admin')}
+                  onClick={() => handleDashboardClick()}
                   className={`cursor-pointer hover:text-indigo-400 transition-colors ${
                     location.pathname === '/admin' ? 'text-indigo-600 font-semibold underline' : ''
                   }`}
@@ -169,7 +179,7 @@ const NavBar = () => {
             {[
               { label: 'Home', path: '/' },
               { label: 'About', path: '/about' },
-              // { label: 'Join the Adventure', path: '/join' },
+              { label: 'Tours', path: '/tours' },
               // { label: 'Student Traveler', path: '/student' },
             ].map((item) => (
               <li key={item.path}>
@@ -183,43 +193,11 @@ const NavBar = () => {
                 </span>
               </li>
             ))}
-            <li>
-              <div
-                className="flex justify-between items-center cursor-pointer py-2"
-                onClick={() => setShowToursMobile(!showToursMobile)}
-              >
-                <span className="font-medium">Tours</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d={showToursMobile ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'}
-                  />
-                </svg>
-              </div>
-              {showToursMobile && (
-                <ul className="pl-4 space-y-2 items-start">
-                  <li
-                    onClick={() => handleNavClick('/tours/upcoming')}
-                    className="cursor-pointer hover:text-indigo-500"
-                  >
-                    Upcoming Tours
-                  </li>
-                  <li
-                    onClick={() => handleNavClick('/tours/previous')}
-                    className="cursor-pointer hover:text-indigo-500"
-                  >
-                    Previous Tours
-                  </li>
-                </ul>
-              )}
-            </li>
 
             {/* Auth */}
             <li>
               <span
-                onClick={() => handleNavClick('/admin')}
+                onClick={() => handleDashboardClick()}
                 className={`cursor-pointer hover:text-indigo-400 transition-colors ${
                   location.pathname === '/admin' ? 'text-indigo-600 font-semibold underline' : ''
                 }`}
