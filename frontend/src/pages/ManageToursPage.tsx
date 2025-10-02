@@ -23,6 +23,7 @@ const ManageTourPage = () => {
   const [showModal, setShowModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedDayNumber, setSelectedDayNumber] = useState<number | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [activitiesByDay, setActivitiesByDay] = useState<Record<number, any[]>>({})
   const [isPublished, setIsPublished] = useState<boolean | null>(null)
 
@@ -139,11 +140,7 @@ const ManageTourPage = () => {
             fetchTour={fetchTour}
           />
         )}
-        {activeTab === 'Rooms' && tourId && (
-          <p>
-            <RoomAssignmentOptimizer tourId={tourId} />
-          </p>
-        )}
+        {activeTab === 'Rooms' && tourId && <RoomAssignmentOptimizer tourId={tourId} />}
         {activeTab === 'Transportation' && <p>Transportation manager coming soon...</p>}
         {activeTab === 'Booked Travelers' && tourId && (
           <div className="p-4 bg-white dark:bg-gray-800 rounded shadow">
