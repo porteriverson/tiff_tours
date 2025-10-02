@@ -5,9 +5,9 @@ import { supabase } from '../../services/supabaseClient'
 // --- Interfaces and Types ---
 
 interface Student {
-  id: number
+  id: string // CHANGED from number to string
   name: string
-  preferences: string[] // IDs of preferred roommates
+  preferences: string[] // Remains string[] (IDs of preferred roommates)
 }
 
 interface RoomConfig {
@@ -18,7 +18,7 @@ interface RoomConfig {
 interface Room {
   id: number
   capacity: number
-  studentIds: string[]
+  studentIds: string[] // Already a string array
   satisfactionScore: number
 }
 
@@ -41,13 +41,13 @@ interface RoomAssignmentOptimizerProps {
 
 /**
  * Fetches students associated with a given tour ID from Supabase.
- * ASSUMPTIONS:
- * 1. There is a 'students' table.
- * 2. The 'students' table has columns: 'id', 'name', 'tour_id'.
- * 3. There is a 'student_preferences' table to link student IDs.
- * (e.g., 'student_id', 'preferred_student_id')
+ * NOTE: Converts all fetched IDs (which are typically numbers in the DB but treated as strings for consistency) to strings.
  */
-const fetchStudents = async (tourId: number): Promise<Student[]> => {
+const fetchStudents = async (tourId: string): Promise<Student[]> => {
+  // TourId is assumed to be a string here since it's passed as a prop, but if your DB stores it as a number, you might need a conversion.
+  // For safety, let's treat it as a number if that's what the DB expects, or keep it as a string if that's the prop type.
+  // Assuming 'tourId' prop is a string that can be used directly.
+
   // 1. Fetch all students for the given tour
   const { data: studentData, error: studentError } = await supabase
     .from('students') // Replace with your actual table name
@@ -63,14 +63,14 @@ const fetchStudents = async (tourId: number): Promise<Student[]> => {
     return []
   }
 
-  const studentIds = studentData.map((s) => s.id)
+  // Convert student IDs to strings immediately
+  const studentIds = studentData.map((s) => String(s.id))
 
   // 2. Fetch all preferences for these students
-  // NOTE: This assumes a simple preference table where each row is a (studentId, preferredStudentId) pair
   const { data: preferenceData, error: preferenceError } = await supabase
     .from('student_preferences') // Replace with your actual preferences table name
     .select('student_id, preferred_student_id')
-    .in('student_id', studentIds)
+    .in('student_id', studentIds) // Uses string IDs for the 'in' clause
 
   if (preferenceError) {
     console.error('Error fetching preferences:', preferenceError)
@@ -78,60 +78,63 @@ const fetchStudents = async (tourId: number): Promise<Student[]> => {
   }
 
   // 3. Map preferences to the student objects
-  const studentPreferences = new Map<number, string[]>()
+  // Keys are string IDs, values are string ID arrays
+  const studentPreferences = new Map<string, string[]>()
   preferenceData?.forEach((pref) => {
-    const currentPrefs = studentPreferences.get(pref.student_id) || []
+    // Ensure all IDs are strings before use
+    const studentId = String(pref.student_id)
+    const preferredId = String(pref.preferred_student_id)
+
+    const currentPrefs = studentPreferences.get(studentId) || []
     // Ensure only valid, fetched student IDs are added as preferences
-    if (studentIds.includes(pref.preferred_student_id)) {
-      currentPrefs.push(pref.preferred_student_id)
-      studentPreferences.set(pref.student_id, currentPrefs)
+    if (studentIds.includes(preferredId)) {
+      currentPrefs.push(preferredId)
+      studentPreferences.set(studentId, currentPrefs)
     }
   })
 
-  // NOTE: The original component assumed each student has a maximum of 3 preferences.
-  // The database fetch will provide all preferences, which is a more robust approach.
-
-  const students: Student[] = studentData.map((s) => ({
-    id: s.id,
-    name: s.name,
-    // The original logic had a fixed array size (e.g., [2, 3, 4]).
-    // We will now include the actual preferences, or an empty array if none exist.
-    preferences: studentPreferences.get(s.id) || [],
-  }))
+  // 4. Create final Student objects with string IDs
+  const students: Student[] = studentData.map((s) => {
+    const studentId = String(s.id)
+    return {
+      id: studentId, // Set student ID as string
+      name: s.name,
+      // The preferences array is already correctly set to string[]
+      preferences: studentPreferences.get(studentId) || [],
+    }
+  })
 
   return students
 }
 
-// --- Optimization Logic (Remains the same) ---
-
-// Helper to map student IDs to names will be created dynamically after fetching.
+// --- Optimization Logic (Refactored for string IDs) ---
 
 /**
  * Calculates a weighted pairwise score between two students.
- * Score: 2 for mutual preference, 1 for one-way preference, 0 otherwise.
  */
 const calculatePairwiseScore = (s1: Student, s2: Student): number => {
+  // s1.id and s2.id are now strings
   const s1WantsS2 = s1.preferences.includes(s2.id) ? 1 : 0
   const s2WantsS1 = s2.preferences.includes(s1.id) ? 1 : 0
 
-  // Mutual preference (1+1=2) gets higher weight than one-way (1)
   return s1WantsS2 + s2WantsS1
 }
 
 /**
  * Calculates the total cohesion score for a group of students.
- * This is the sum of all pairwise scores within the group.
+ * ScoreMatrix now uses string IDs as keys.
  */
 const calculateGroupCohesion = (
   studentIds: string[],
-  scoreMatrix: Map<number, Map<number, number>>
+  // CHANGED: Keys are now string IDs
+  scoreMatrix: Map<string, Map<string, number>>
 ): number => {
   let cohesionScore = 0
   for (let i = 0; i < studentIds.length; i++) {
     for (let j = i + 1; j < studentIds.length; j++) {
       const id1 = studentIds[i]
       const id2 = studentIds[j]
-      // Since the matrix is symmetric, we can check id1 -> id2
+      // scoreMatrix access uses string IDs
       cohesionScore += scoreMatrix.get(id1)?.get(id2) ?? 0
     }
   }
@@ -143,21 +146,22 @@ const calculateGroupCohesion = (
  */
 const calculateAssignment = (roomConfigs: RoomConfig[], students: Student[]): Metrics => {
   // 1. Pre-calculate the pairwise score matrix (symmetric)
-  const scoreMatrix = new Map<number, Map<number, number>>()
+  // CHANGED: Keys are now string IDs
+  const scoreMatrix = new Map<string, Map<string, number>>()
   for (const s1 of students) {
-    const s1Scores = new Map<number, number>()
+    // CHANGED: Keys are now string IDs
+    const s1Scores = new Map<string, number>()
     for (const s2 of students) {
       if (s1.id === s2.id) continue
-      // We only need to calculate the score once (i->j) as the matrix is symmetric
-      // by nature of the score calculation (s1WantsS2 + s2WantsS1).
       const score = calculatePairwiseScore(s1, s2)
-      s1Scores.set(s2.id, score)
+      s1Scores.set(s2.id, score) // s2.id is a string
     }
-    scoreMatrix.set(s1.id, s1Scores)
+    scoreMatrix.set(s1.id, s1Scores) // s1.id is a string
   }
 
   // 2. Setup initial state
   let availableRoomCounts = new Map(roomConfigs.map((c) => [c.size, c.count]))
+  // CHANGED: Set of string IDs
   let unassignedIds = new Set(students.map((s) => s.id))
   const assignedRooms: Room[] = []
   let roomId = 1
@@ -168,25 +172,26 @@ const calculateAssignment = (roomConfigs: RoomConfig[], students: Student[]): Me
     let remainingCount = availableRoomCounts.get(roomSize) || 0
 
     while (remainingCount > 0 && unassignedIds.size >= roomSize) {
+      // Group elements are string IDs
       let bestRoom: { group: string[]; score: number } | null = null
 
-      // Convert Set to Array for iteration
+      // Convert Set to Array for iteration (elements are string IDs)
       const currentUnassigned = Array.from(unassignedIds)
 
       // Iteratively search for the best room of the current size
-      // We check all possible starting students as 'seeds'
       for (const seedId of currentUnassigned) {
+        // seedId is a string
         // Find the best k-1 roommates for the seed (based on maximizing cohesion score)
         const candidates = currentUnassigned.filter((id) => id !== seedId)
 
         // Simple Heuristic: Choose k-1 students that have the highest pairwise score with the seed
         const bestRoommates = candidates
-          .map((id) => ({ id, score: scoreMatrix.get(seedId)?.get(id) ?? 0 }))
+          .map((id) => ({ id, score: scoreMatrix.get(seedId)?.get(id) ?? 0 })) // scoreMatrix access uses string IDs
           .sort((a, b) => b.score - a.score)
           .slice(0, roomSize - 1)
           .map((c) => c.id)
 
-        const currentGroup = [seedId, ...bestRoommates]
+        const currentGroup = [seedId, ...bestRoommates] // All elements are string IDs
         const currentScore = calculateGroupCohesion(currentGroup, scoreMatrix)
 
         if (!bestRoom || currentScore > bestRoom.score) {
@@ -199,17 +204,15 @@ const calculateAssignment = (roomConfigs: RoomConfig[], students: Student[]): Me
         assignedRooms.push({
           id: roomId++,
           capacity: roomSize,
-          studentIds: bestRoom.group,
+          studentIds: bestRoom.group, // string IDs
           satisfactionScore: bestRoom.score,
         })
 
         // Remove assigned students from the unassigned pool
-        bestRoom.group.forEach((id) => unassignedIds.delete(id))
+        bestRoom.group.forEach((id) => unassignedIds.delete(id)) // id is a string
         remainingCount--
         availableRoomCounts.set(roomSize, remainingCount)
       } else {
-        // If we break here, it means no valid group of size 'roomSize' could be formed
-        // among the remaining students based on the current greedy heuristic.
         break
       }
     }
@@ -218,15 +221,18 @@ const calculateAssignment = (roomConfigs: RoomConfig[], students: Student[]): Me
   // 4. Calculate Final Metrics
   let totalPreferencesSatisfied = 0
   let totalMutualPreferencesSatisfied = 0
-  const allStudents = new Map(students.map((s) => [s.id, s]))
+  // CHANGED: Map key is a string ID
+  const allStudents = new Map<string, Student>(students.map((s) => [s.id, s]))
 
   // Create a map to quickly check which room a student is in
-  const studentToRoomMap = new Map<number, number>() // studentId -> roomId
+  // CHANGED: Map key is a string ID
+  const studentToRoomMap = new Map<string, number>() // studentId (string) -> roomId (number)
   for (const room of assignedRooms) {
-    room.studentIds.forEach((id) => studentToRoomMap.set(id, room.id))
+    room.studentIds.forEach((id) => studentToRoomMap.set(id, room.id)) // id is a string
   }
 
   for (const student of students) {
+    // student.id is a string
     const studentRoomId = studentToRoomMap.get(student.id)
     if (!studentRoomId) continue // Unassigned
 
@@ -234,6 +240,7 @@ const calculateAssignment = (roomConfigs: RoomConfig[], students: Student[]): Me
     if (!room) continue
 
     for (const prefId of student.preferences) {
+      // prefId is a string
       // Check if the preferred student is in the same room
       if (room.studentIds.includes(prefId)) {
         totalPreferencesSatisfied++
@@ -241,7 +248,7 @@ const calculateAssignment = (roomConfigs: RoomConfig[], students: Student[]): Me
         // Check for mutual satisfaction
         const preferredStudent = allStudents.get(prefId)
         if (preferredStudent && preferredStudent.preferences.includes(student.id)) {
-          // Ensures we only count the mutual link once (e.g., when A sees B, not B sees A)
+          // Ensures we only count the mutual link once (string comparison)
           if (student.id < prefId) {
             totalMutualPreferencesSatisfied++
           }
@@ -250,24 +257,17 @@ const calculateAssignment = (roomConfigs: RoomConfig[], students: Student[]): Me
     }
   }
 
-  // The original component used a max of 3 preferences.
-  // We'll update the max possible to be the largest number of preferences any student has, or 3 if that's the hard limit you want.
-  // For now, let's keep the original logic for simplicity, but a more accurate max would be better.
-  const maxIndividualPrefs = students.reduce((max, s) => Math.max(max, s.preferences.length), 0)
-  const maxTotalPreferences = students.length * maxIndividualPrefs
-
   return {
     totalStudents: students.length,
     totalRooms: assignedRooms.length,
     unassignedStudents: unassignedIds.size,
     totalPreferencesSatisfied: totalPreferencesSatisfied,
-    // Use the max based on the total number of preferences each student listed
     totalMutualPreferencesSatisfied: totalMutualPreferencesSatisfied,
     rooms: assignedRooms,
   }
 }
 
-// --- React Component ---
+// --- React Component (Refactored for string IDs) ---
 
 const RoomAssignmentOptimizer: React.FC<RoomAssignmentOptimizerProps> = ({ tourId }) => {
   const [roomCounts, setRoomCounts] = useState<{ [key: number]: number }>({
@@ -281,9 +281,14 @@ const RoomAssignmentOptimizer: React.FC<RoomAssignmentOptimizerProps> = ({ tourI
   const [error, setError] = useState<string | null>(null)
   const [metrics, setMetrics] = useState<Metrics | null>(null)
 
-  // Helper to map student IDs to names
-  const studentMap = useMemo(() => new Map(students.map((s) => [s.id, s])), [students])
-  const getStudentName = (id: number): string => studentMap.get(id)?.name ?? `ID ${id}`
+  // Helper to map student IDs (string) to names
+  // CHANGED: Map key is a string ID
+  const studentMap = useMemo(
+    () => new Map<string, Student>(students.map((s) => [s.id, s])),
+    [students]
+  )
+  // CHANGED: id parameter is a string
+  const getStudentName = (id: string): string => studentMap.get(id)?.name ?? `ID ${id}`
 
   // Data Fetching Effect
   useEffect(() => {
@@ -291,6 +296,7 @@ const RoomAssignmentOptimizer: React.FC<RoomAssignmentOptimizerProps> = ({ tourI
       setLoading(true)
       setError(null)
       try {
+        // tourId is already a string
         const fetchedStudents = await fetchStudents(tourId)
         setStudents(fetchedStudents)
       } catch (err) {
@@ -302,8 +308,7 @@ const RoomAssignmentOptimizer: React.FC<RoomAssignmentOptimizerProps> = ({ tourI
     }
 
     loadData()
-    // Re-run if tourId changes
-  }, [tourId])
+  }, [tourId]) // Re-run if tourId changes
 
   const totalAvailableSpots = useMemo(() => {
     return Object.entries(roomCounts).reduce((total, [size, count]) => {
@@ -312,7 +317,6 @@ const RoomAssignmentOptimizer: React.FC<RoomAssignmentOptimizerProps> = ({ tourI
   }, [roomCounts])
 
   const maxTotalPreferences = useMemo(() => {
-    // Calculate the maximum possible individual preferences (based on the data, not a hardcoded 3)
     const maxIndividualPrefs = students.reduce((max, s) => Math.max(max, s.preferences.length), 0)
     return students.length * maxIndividualPrefs
   }, [students])
@@ -486,19 +490,20 @@ const RoomAssignmentOptimizer: React.FC<RoomAssignmentOptimizerProps> = ({ tourI
                   </div>
                   <ul className="space-y-1">
                     {room.studentIds.map((id) => {
+                      // id is a string
                       const student = studentMap.get(id)
                       // Check for a valid student object before proceeding
                       if (!student) return null
 
+                      // student.preferences are string IDs, room.studentIds are string IDs
                       const satisfiedCount = student.preferences.filter((prefId) =>
                         room.studentIds.includes(prefId)
                       ).length
-                      // Display the max preferences the student listed, not a hardcoded '3'
                       const maxStudentPrefs = student.preferences.length
 
                       return (
                         <li
-                          key={id}
+                          key={id} // key is a string
                           className="flex justify-between p-2 bg-gray-50 rounded-lg text-sm text-gray-700"
                         >
                           <span className="font-medium">{getStudentName(id)}</span>
@@ -521,6 +526,7 @@ const RoomAssignmentOptimizer: React.FC<RoomAssignmentOptimizerProps> = ({ tourI
                 </h4>
                 <p className="text-sm text-red-700">
                   {students
+                    // s.id is a string, r.studentIds are string[]
                     .filter((s) => !metrics.rooms.some((r) => r.studentIds.includes(s.id)))
                     .map((s) => s.name)
                     .join(', ')}
