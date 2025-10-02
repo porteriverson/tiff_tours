@@ -7,7 +7,7 @@ import { supabase } from '../../services/supabaseClient'
 interface Student {
   id: number
   name: string
-  preferences: number[] // IDs of preferred roommates
+  preferences: string[] // IDs of preferred roommates
 }
 
 interface RoomConfig {
@@ -78,7 +78,7 @@ const fetchStudents = async (tourId: number): Promise<Student[]> => {
   }
 
   // 3. Map preferences to the student objects
-  const studentPreferences = new Map<number, number[]>()
+  const studentPreferences = new Map<number, string[]>()
   preferenceData?.forEach((pref) => {
     const currentPrefs = studentPreferences.get(pref.student_id) || []
     // Ensure only valid, fetched student IDs are added as preferences
@@ -123,7 +123,7 @@ const calculatePairwiseScore = (s1: Student, s2: Student): number => {
  * This is the sum of all pairwise scores within the group.
  */
 const calculateGroupCohesion = (
-  studentIds: number[],
+  studentIds: string[],
   scoreMatrix: Map<number, Map<number, number>>
 ): number => {
   let cohesionScore = 0
@@ -168,7 +168,7 @@ const calculateAssignment = (roomConfigs: RoomConfig[], students: Student[]): Me
     let remainingCount = availableRoomCounts.get(roomSize) || 0
 
     while (remainingCount > 0 && unassignedIds.size >= roomSize) {
-      let bestRoom: { group: number[]; score: number } | null = null
+      let bestRoom: { group: string[]; score: number } | null = null
 
       // Convert Set to Array for iteration
       const currentUnassigned = Array.from(unassignedIds)
