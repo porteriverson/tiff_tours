@@ -15,7 +15,7 @@ interface BookedTraveler {
   room_preference_3: string | null
   medical_form_complete: boolean
   travel_forms_complete: boolean
-  user: UserProfile
+  user: UserProfile | null
 }
 
 export const BookedList: React.FC<{ tourId: string }> = ({ tourId }) => {
@@ -44,28 +44,18 @@ export const BookedList: React.FC<{ tourId: string }> = ({ tourId }) => {
      room_preference_3,
      medical_form_complete,
      travel_forms_complete,
-     user:profiles(email)
+     user:profiles!user_id(email)
    `
         )
         .eq('tour_id', tourId)
 
+      console.log('Raw Supabase response:', { data, error })
+
       if (error) {
         setError(error.message)
       } else if (data) {
-        // Supabase always returns an array for joined tables, even when it's one-to-one.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const normalized: BookedTraveler[] = data.map((row: any) => ({
-          id: row.id,
-          student_name: row.student_name,
-          student_gender: row.student_gender,
-          room_preference_1: row.room_preference_1,
-          room_preference_2: row.room_preference_2,
-          room_preference_3: row.room_preference_3,
-          medical_form_complete: row.medical_form_complete,
-          travel_forms_complete: row.travel_forms_complete,
-          user: Array.isArray(row.user) ? row.user[0] : row.user,
-        }))
-        setRows(normalized)
+        console.log('First row structure:', data[0])
+        setRows(data as unknown as BookedTraveler[])
       }
       setLoading(false)
     }
@@ -82,7 +72,8 @@ export const BookedList: React.FC<{ tourId: string }> = ({ tourId }) => {
       (r.room_preference_2 || '').toLowerCase().includes(term) ||
       (r.room_preference_3 || '').toLowerCase().includes(term) ||
       boolToStr(r.medical_form_complete).includes(term) ||
-      boolToStr(r.travel_forms_complete).includes(term)
+      boolToStr(r.travel_forms_complete).includes(term) ||
+      (r.user?.email || '').toLowerCase().includes(term)
     )
   })
 
@@ -99,7 +90,7 @@ export const BookedList: React.FC<{ tourId: string }> = ({ tourId }) => {
   const openEmailClient = () => {
     const recipients = rows
       .filter((r) => selected.has(r.id))
-      .map((r) => r.user.email)
+      .map((r) => r.user?.email)
       .filter(Boolean)
       .join(',')
     const subject = 'Info about your booking'
