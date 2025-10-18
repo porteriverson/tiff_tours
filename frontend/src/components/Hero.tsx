@@ -23,8 +23,8 @@ const Hero: React.FC<HeroProps> = ({ image, title, subtitle, buttonText, buttonL
     >
       <div className="absolute inset-0 bg-opacity-50" />
       <div className="relative z-10 text-center px-4">
-        <h1 className="text-4xl font-bold mb-2">{title}</h1>
-        <p className="text-lg mb-4">{subtitle}</p>
+        <h1 className="text-5xl md:text-7xl font-bold mb-4">{title}</h1>
+        <p className="text-2xl md:text-3xl font-bold mb-4">{subtitle}</p>
         {buttonText && buttonLink && (
           <button
             onClick={handleClick}
