@@ -1,5 +1,4 @@
 import Hero from '../components/Hero'
-import YouTubeEmbed from '../components/YoutubeEmbed'
 import PublishedTourList from '../features/tours/PublishedTourList'
 
 function HomePage() {
@@ -13,12 +12,9 @@ function HomePage() {
           // buttonText="Join the Adventure"
           // buttonLink="/tours"
         />
-        <div className="min-w-screen items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 text-center px-4">
-          <div className="flex justify-center">
+        <div className="min-w-screen items-center justify-center min-h-screen bg-gray-100 text-center">
+          <div className="flex justify-center min-w-screen">
             <PublishedTourList />
-          </div>
-          <div className="max-w-4xl mx-auto my-auto">
-            <YouTubeEmbed embedId="GWMi6WgZfl4" />
           </div>
         </div>
       </div>

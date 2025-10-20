@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { supabase } from '../services/supabaseClient'
 import type { User } from '@supabase/supabase-js'
+import { Plane, X, Menu } from 'lucide-react'
 
 const NavBar = () => {
   const location = useLocation()
@@ -15,17 +16,13 @@ const NavBar = () => {
     navigate(path)
   }
 
-  // A specific function for dashboard navigation
   const handleDashboardClick = () => {
     setExpanded(false)
-    // console.log('User role:', userRole)
-    // console.log('UserID:', user?.id)
     if (userRole === 'admin') {
       navigate('/admin')
     } else if (userRole === 'traveler') {
       navigate('/traveler')
     } else {
-      // You can handle this case if a user is logged in but has no role
       navigate('/')
     }
   }
@@ -33,10 +30,11 @@ const NavBar = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setUser(null)
-    navigate('/') // Redirect after logout
+    setUserRole(null)
+    setExpanded(false)
+    navigate('/')
   }
 
-  // New combined function to fetch user and profile
   const fetchUserAndRole = async (session: { user: User } | null) => {
     if (session?.user) {
       setUser(session.user)
@@ -64,167 +62,148 @@ const NavBar = () => {
   }
 
   useEffect(() => {
-    // This listener will be the single source of truth for user state
     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       await fetchUserAndRole(session)
     })
 
-    // Clean up the listener on component unmount
     return () => {
       listener.subscription.unsubscribe()
     }
   }, [])
 
+  const navLinks = [
+    { label: 'Home', path: '/' },
+    { label: 'About', path: '/about' },
+    { label: 'Tours', path: '/tours' },
+  ]
+
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white shadow z-50">
-      <div className="flex items-center justify-between px-6 py-4">
-        {/* Logo & Branding */}
-        <div
-          className="flex items-center cursor-pointer text-2xl font-bold text-indigo-600 space-x-2"
-          onClick={() => handleNavClick('/')}
-        >
-          <img src="/TTLogo.png" alt="Tiff Tours Logo" className="h-8 w-8" />
-          <span className="text-gray-800">Tiffany's Tours</span>
-        </div>
+    <nav className="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo & Branding */}
+          <div
+            className="flex items-center cursor-pointer space-x-3 group"
+            onClick={() => handleNavClick('/')}
+          >
+            <div className="w-10 h-10 flex items-center justify-center">
+              <Plane className="w-6 h-6 text-sky-600 group-hover:text-sky-700 transition-colors" />
+            </div>
+            <span className="text-xl font-semibold text-slate-800 group-hover:text-sky-600 transition-colors">
+              Tiffany's Tours
+            </span>
+          </div>
 
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden text-gray-700 focus:outline-none"
-          onClick={() => setExpanded(!expanded)}
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {expanded ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
-        </button>
-
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex space-x-6 text-gray-800 font-medium items-center">
-          {/* Other top-level links like Home, About, etc. */}
-          {[
-            { label: 'Home', path: '/' },
-            { label: 'About', path: '/about' },
-            { label: 'Tours', path: '/tours' },
-            // { label: 'Student Traveler', path: '/student' },
-          ].map((item) => (
-            <li key={item.path}>
-              <span
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navLinks.map((item) => (
+              <button
+                key={item.path}
                 onClick={() => handleNavClick(item.path)}
-                className={`cursor-pointer hover:text-indigo-400 transition-colors ${
-                  location.pathname === item.path ? 'text-indigo-600 font-semibold underline' : ''
+                className={`text-sm font-medium transition-colors relative ${
+                  location.pathname === item.path
+                    ? 'text-sky-600'
+                    : 'text-slate-700 hover:text-sky-600'
                 }`}
               >
                 {item.label}
-              </span>
-            </li>
-          ))}
-          {/* Auth buttons */}
-          {user && (
-            <>
-              <li>
-                <span
-                  onClick={() => handleDashboardClick()}
-                  className={`cursor-pointer hover:text-indigo-400 transition-colors ${
-                    location.pathname === '/admin' ? 'text-indigo-600 font-semibold underline' : ''
-                  }`}
+                {location.pathname === item.path && (
+                  <span className="absolute -bottom-5 left-0 right-0 h-0.5 bg-sky-600"></span>
+                )}
+              </button>
+            ))}
+
+            {/* Auth Buttons */}
+            <div className="flex items-center space-x-4 ml-4 pl-4 border-l border-slate-200">
+              {user ? (
+                <>
+                  <button
+                    onClick={handleDashboardClick}
+                    className={`text-sm font-medium transition-colors ${
+                      location.pathname === '/admin' || location.pathname === '/traveler'
+                        ? 'text-sky-600'
+                        : 'text-slate-700 hover:text-sky-600'
+                    }`}
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm font-medium text-slate-500 hover:text-red-600 transition-colors"
+                  >
+                    Log Out
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => handleNavClick('/login')}
+                  className="px-4 py-2 text-sm font-medium bg-sky-600 text-white hover:bg-sky-700 transition-all rounded shadow-sm hover:shadow-md"
                 >
-                  Dashboard
-                </span>
-              </li>
-              <li>
-                <span
-                  onClick={handleLogout}
-                  className="text-red-400 hover:text-red-700 font-semibold hover:underline"
-                >
-                  Log Out
-                </span>
-              </li>
-            </>
-          )}
-          {!user && (
-            <li>
-              <span
-                onClick={() => handleNavClick('/admin')}
-                className={`cursor-pointer hover:text-indigo-400 transition-colors ${
-                  location.pathname === '/admin' ? 'text-indigo-600 font-semibold underline' : ''
-                }`}
-              >
-                Sign In
-              </span>
-            </li>
-          )}
-        </ul>
+                  Sign In
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Toggle */}
+          <button
+            className="md:hidden p-2 text-slate-700 hover:text-sky-600 transition-colors"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       {expanded && (
-        <div className="md:hidden px-6 pb-4 bg-white border-t border-gray-200">
-          <ul className="flex flex-col space-y-2 text-gray-700 items-start">
-            {/* Tours dropdown toggle */}
-
-            {/* Other pages */}
-            {[
-              { label: 'Home', path: '/' },
-              { label: 'About', path: '/about' },
-              { label: 'Tours', path: '/tours' },
-              // { label: 'Student Traveler', path: '/student' },
-            ].map((item) => (
-              <li key={item.path}>
-                <span
-                  onClick={() => handleNavClick(item.path)}
-                  className={`block w-full cursor-pointer py-2 hover:text-indigo-500 ${
-                    location.pathname === item.path ? 'text-indigo-600 font-semibold underline' : ''
-                  }`}
-                >
-                  {item.label}
-                </span>
-              </li>
-            ))}
-
-            {/* Auth */}
-            <li>
-              <span
-                onClick={() => handleDashboardClick()}
-                className={`cursor-pointer hover:text-indigo-400 transition-colors ${
-                  location.pathname === '/admin' ? 'text-indigo-600 font-semibold underline' : ''
+        <div className="md:hidden bg-white border-t border-slate-100">
+          <div className="px-4 py-4 space-y-1">
+            {navLinks.map((item) => (
+              <button
+                key={item.path}
+                onClick={() => handleNavClick(item.path)}
+                className={`block w-full text-left px-4 py-3 text-sm font-medium transition-colors ${
+                  location.pathname === item.path
+                    ? 'text-sky-600 bg-sky-50'
+                    : 'text-slate-700 hover:text-sky-600 hover:bg-slate-50'
                 }`}
               >
-                Dashboard
-              </span>
-            </li>
-            <li>
+                {item.label}
+              </button>
+            ))}
+
+            {/* Mobile Auth */}
+            <div className="pt-3 mt-3 border-t border-slate-100">
               {user ? (
-                <span
-                  onClick={handleLogout}
-                  className="block w-full text-red-600 hover:text-red-700 font-semibold py-2"
-                >
-                  Log Out
-                </span>
+                <>
+                  <button
+                    onClick={handleDashboardClick}
+                    className={`block w-full text-left px-4 py-3 text-sm font-medium transition-colors ${
+                      location.pathname === '/admin' || location.pathname === '/traveler'
+                        ? 'text-sky-600 bg-sky-50'
+                        : 'text-slate-700 hover:text-sky-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-3 text-sm font-medium text-slate-500 hover:text-red-600 hover:bg-slate-50 transition-colors"
+                  >
+                    Log Out
+                  </button>
+                </>
               ) : (
-                <span
-                  onClick={() => handleNavClick('/admin')}
-                  className={`block w-full cursor-pointer py-2 hover:text-indigo-500 ${
-                    location.pathname === '/admin' ? 'text-indigo-600 font-semibold underline' : ''
-                  }`}
+                <button
+                  onClick={() => handleNavClick('/login')}
+                  className="block w-full px-4 py-3 text-sm font-medium text-center bg-sky-600 text-white hover:bg-sky-700 transition-all rounded shadow-sm hover:shadow-md"
                 >
                   Sign In
-                </span>
+                </button>
               )}
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
       )}
     </nav>
